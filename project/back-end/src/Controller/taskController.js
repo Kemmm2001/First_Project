@@ -1,4 +1,5 @@
 const task = require('../Models/task');
+const { ObjectId } = require('mongoose').Types;
 
 var getTask = (req, res) => {
     // Viết logic
@@ -13,9 +14,9 @@ var getTask = (req, res) => {
 }
 
 var addTask = (req, res) => {
-    const id = req.query.id;
-    const name = req.query.name;
-
+    let id = req.body.data;
+    const name = req.body.name;
+ 
     const newTask = new task({
         taskId: id,
         active: true,
@@ -23,9 +24,22 @@ var addTask = (req, res) => {
     });
 
     newTask.save()
-    res.send("oke");
+    res.send("Add succcesfully");
 }
 
+var deleteTask = async (req, res) => {
+
+    const taskId = req.body.id;
+    const objectId = new ObjectId(taskId);
+    try {
+      const result = await task.deleteOne({ _id: objectId });      
+      res.send('delete successfully');
+    } catch (error) {
+      console.log(error);
+      res.status(500).send('delete failed');
+    }
+  };
+
 module.exports = {
-    getTask, addTask
+    getTask, addTask,deleteTask
 }

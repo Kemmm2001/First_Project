@@ -20,7 +20,7 @@
               <div class="d-flex justify-content-between">
                 <div>{{ todo.taskName }}</div>
                 <div>
-                  <button class="btn btn-danger" @click="deleteTodo(index)">Delete</button>
+                  <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
                 </div>
               </div>
             </li>
@@ -45,11 +45,9 @@ export default {
   },
   methods: {
     getListTask() {
-      console.log(1);
       HTTP.get(`task`)
         .then((response) => {
-          this.todos = response.data;
-          this.addTask();
+          this.todos = response.data;  
         })
         .catch((e) => {
           console.log(e);
@@ -57,11 +55,9 @@ export default {
     },
     addTask() {
       if (this.newTodo != "") {
-        HTTP.get(`addTask`, {
-          params: {
-            id: 2,
-            name: this.newTodo,
-          },
+        HTTP.post(`addTask`, {
+          id: 2,
+          name: this.newTodo,
         })
           .then(() => {
             // Thêm mới thành công, load lại danh sách
@@ -73,8 +69,16 @@ export default {
           });
       }
     },
-    deleteTodo(index) {
-      this.todos.splice(index, 1);
+    deleteTodo(id) {
+      HTTP.post(`deleteTask`, {
+        id: id,        
+      })
+        .then(() => {       
+          this.getListTask();          
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
   },
 };
