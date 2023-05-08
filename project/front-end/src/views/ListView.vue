@@ -21,8 +21,7 @@
             <th scope="row">{{ data.ProductName }}</th>
             <td>{{ data.Description }}</td>
             <td>{{ data.Price }}</td>
-            <td>{{ data.Quantity }}</td>
-            <td><a href="/Order">Order</a></td>
+            <td>{{ data.Quantity }}</td>         
           </tr>
         </tbody>
       </table>
@@ -48,7 +47,7 @@ export default {
       HTTP.get(`home`)
         .then((response) => {
           this.data = response.data;
-          console.log(response.data);
+        
         })
         .catch((e) => {
           console.log(e);

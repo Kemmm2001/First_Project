@@ -6,7 +6,6 @@ const category = require('../Models/category');
 var getCategory = (req, res) => {
     // Viết logic
     let test = req.query.test;
-    console.log(test)
     category.find({})
         .then((category) => {
             res.json(category);
