@@ -21,7 +21,7 @@
             <th scope="row">{{ data.ProductName }}</th>
             <td>{{ data.Description }}</td>
             <td>{{ data.Price }}</td>
-            <td>{{ data.Quantity }}</td>         
+            <td>{{ data.Quantity }}</td>
           </tr>
         </tbody>
       </table>
@@ -47,17 +47,16 @@ export default {
       HTTP.get(`home`)
         .then((response) => {
           this.data = response.data;
-        
         })
         .catch((e) => {
           console.log(e);
         });
     },
     getdataCategory() {
-      HTTP.get("category",{
-        params:{
-          test: "123"
-        }
+      HTTP.get("category", {
+        params: {
+          test: "123",
+        },
       })
         .then((response) => {
           this.category = response.data;

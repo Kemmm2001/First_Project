@@ -14,17 +14,19 @@
               </div>
             </div>
           </form>
-          <ul class="list-group">
-            <!-- <input type="checkbox" class="form-check-input" /> -->
-            <li class="list-group-item" v-for="(todo, index) in todos" :key="index">
-              <div class="d-flex justify-content-between">
-                <div>{{ todo.taskName }}</div>
-                <div>
-                  <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
+          <div class="container-task" v-for="(todo, index) in todos" :key="index">
+            <input type="checkbox" class="form-check-input" v-model="todo.completed" />
+            <ul class="list-group" style="width:100%">
+              <li class="list-group-item">
+                <div :class="{done: todo.completed}" class="d-flex justify-content-between">
+                  <div>{{ todo.taskName }}</div>
+                  <div>
+                    <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
+                  </div>
                 </div>
-              </div>
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -47,7 +49,7 @@ export default {
     getListTask() {
       HTTP.get(`task`)
         .then((response) => {
-          this.todos = response.data;  
+          this.todos = response.data;
         })
         .catch((e) => {
           console.log(e);
@@ -71,10 +73,10 @@ export default {
     },
     deleteTodo(id) {
       HTTP.post(`deleteTask`, {
-        id: id,        
+        id: id,
       })
-        .then(() => {       
-          this.getListTask();          
+        .then(() => {
+          this.getListTask();
         })
         .catch((e) => {
           console.log(e);
@@ -83,7 +85,15 @@ export default {
   },
 };
 </script>
+
 <style scoped>
+.done {
+  text-decoration: line-through;
+}
+.container-task {
+  display: flex;
+  margin-bottom: 10px;
+}
 .form-check-input {
   vertical-align: middle;
   margin-top: 12px;
