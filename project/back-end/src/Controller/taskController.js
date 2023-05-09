@@ -16,7 +16,7 @@ var getTask = (req, res) => {
 var addTask = (req, res) => {
     let id = req.body.data;
     const name = req.body.name;
- 
+
     const newTask = new task({
         taskId: id,
         active: true,
@@ -28,18 +28,42 @@ var addTask = (req, res) => {
 }
 
 var deleteTask = async (req, res) => {
-
     const taskId = req.body.id;
     const objectId = new ObjectId(taskId);
     try {
-      const result = await task.deleteOne({ _id: objectId });      
-      res.send('delete successfully');
+        const result = await task.deleteOne({ _id: objectId });
+        res.send('delete successfully');
     } catch (error) {
-      console.log(error);
-      res.status(500).send('delete failed');
+        console.log(error);
+        res.status(500).send('delete failed');
     }
-  };
+};
+
+var updateTask = async (req, res) => {
+    const taskData = {}
+    taskData.taskId = req.body.id;
+    taskData.taskName = req.body.name
+    taskData.completed = req.body.completed
+    taskData.task_date = req.body.task_date
+    try {
+        await task.updateOne(
+            { _id: objectId },
+            { $set: taskData },
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.send("update failed");
+                } else {
+                    console.log(result);
+                    res.send("update successfully");
+                }
+            }
+        )
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 module.exports = {
-    getTask, addTask,deleteTask
+    getTask, addTask, deleteTask , updateTask
 }

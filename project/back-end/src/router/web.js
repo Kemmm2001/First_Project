@@ -17,6 +17,7 @@ const initWebRouter = (app) => {
     router.get('/task',taskController.getTask)
     router.post('/addTask',taskController.addTask)
     router.post('/deleteTask',taskController.deleteTask)
+    router.post('/updateTask',taskController.updateTask)
 
     //Tiền tố đứng trước route
     app.use('/api/v1', router);

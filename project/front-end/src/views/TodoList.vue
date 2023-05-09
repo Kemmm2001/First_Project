@@ -19,8 +19,13 @@
             <ul class="list-group" style="width:100%">
               <li class="list-group-item">
                 <div :class="{done: todo.completed}" class="d-flex justify-content-between">
-                  <div>{{ todo.taskName }}</div>
+                  <div v-if="editIndex !== index">{{ todo.taskName }}</div>
+                  <div v-else>
+                    <input type="text" class="form-control" placeholder="Enter text here" v-model="todo.taskName" @keyup.enter="editTodo" @blur="editIndex = -1" />
+                  </div>
                   <div>
+                    <button v-if="editIndex !== index" class="btn btn-primary" @click="editIndex = index">Edit</button>
+                    <button v-else class="btn btn-warning" @click="updateTodo(index)">update</button>
                     <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
                   </div>
                 </div>
@@ -40,6 +45,7 @@ export default {
     return {
       newTodo: "",
       todos: [],
+      editIndex: -1,
     };
   },
   mounted() {
@@ -49,7 +55,7 @@ export default {
     getListTask() {
       HTTP.get(`task`)
         .then((response) => {
-          this.todos = response.data;
+          this.todos = response.data;      
         })
         .catch((e) => {
           console.log(e);
@@ -82,6 +88,9 @@ export default {
           console.log(e);
         });
     },
+    updateTodo(index){
+      this.editIndex = index
+    }
   },
 };
 </script>
