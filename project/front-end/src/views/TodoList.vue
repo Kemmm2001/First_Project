@@ -19,13 +19,10 @@
             <ul class="list-group" style="width:100%">
               <li class="list-group-item">
                 <div :class="{done: todo.completed}" class="d-flex justify-content-between">
-                  <div v-if="editIndex !== index">{{ todo.taskName }}</div>
-                  <div v-else>
-                    <input type="text" class="form-control" placeholder="Enter text here" v-model="todo.taskName" @keyup.enter="editTodo" @blur="editIndex = -1" />
+                  <div>
+                    <input type="text" :class="{ 'hoverr': index === selectedTodoIndex }" class="form-control" placeholder="Enter text here" v-model="todo.taskName" v-on:click="selectedTodoIndex = index" v-on:keyup.enter="updateTodo(index)" />
                   </div>
                   <div>
-                    <button v-if="editIndex !== index" class="btn btn-primary" @click="editIndex = index">Edit</button>
-                    <button v-else class="btn btn-warning" @click="updateTodo(index)">update</button>
                     <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
                   </div>
                 </div>
@@ -45,7 +42,7 @@ export default {
     return {
       newTodo: "",
       todos: [],
-      editIndex: -1,
+      selectedTodoIndex: -1,
     };
   },
   mounted() {
@@ -55,7 +52,7 @@ export default {
     getListTask() {
       HTTP.get(`task`)
         .then((response) => {
-          this.todos = response.data;      
+          this.todos = response.data;
         })
         .catch((e) => {
           console.log(e);
@@ -88,14 +85,35 @@ export default {
           console.log(e);
         });
     },
-    updateTodo(index){
-      this.editIndex = index
-    }
+    updateTodo(index) {
+      HTTP.post(`updateTask`, {
+        _id: this.todos[index]._id,
+        id: this.todos[index].taskId,
+        name: this.todos[index].taskName,
+        completed: true,
+        task_date: this.todos[index].task_date,
+      })
+        .then(() => {
+          // Thêm mới thành công, load lại danh sách
+          this.getListTask();
+          this.newTodo = "";
+          this.index1 = -1;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
   },
 };
 </script>
 
 <style scoped>
+.hoverr {
+  border: 1px solid #d8d6de !important;
+}
+/* .hoverr:hover {
+  border: 1px solid #d8d6de !important;
+} */
 .done {
   text-decoration: line-through;
 }
