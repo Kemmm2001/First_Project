@@ -8,22 +8,27 @@
         <div class="card-body">
           <form @submit.prevent="addTask">
             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Add new task" v-model="newTodo" />
+              <input style="width:72%" type="text" class="form-control" placeholder="Add new task" v-model="newTodo" />
+              <input type="date" class="form-control" v-model="selectedDate" />
               <div class="input-group-append">
                 <button class="btn btn-primary" type="submit" :disabled="!newTodo">Add</button>
               </div>
             </div>
           </form>
-          <div class="container-task" v-for="(todo, index) in todos" :key="index">
-            <input type="checkbox" class="form-check-input" v-model="todo.completed" />
+          <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 10px" v-for="(todo, index) in todos" :key="index">
+            <input style="margin-top: 0" type="checkbox" class="form-check-input" v-model="todo.completed" v-on:change="updateTodo($event,index)" />
             <ul class="list-group" style="width:100%">
               <li class="list-group-item">
-                <div :class="{done: todo.completed}" class="d-flex justify-content-between">
+                <div :class="{done: todo.completed}" class="d-flex justify-content-between align-items-center">
                   <div>
-                    <input type="text" :class="{ 'hoverr': index === selectedTodoIndex }" class="form-control" placeholder="Enter text here" v-model="todo.taskName" v-on:click="selectedTodoIndex = index" v-on:keyup.enter="updateTodo(index)" />
+                    <input type="text" :class="{ 'active': index === selectedTodoIndex }" class="form-control inactive" placeholder="Enter text here" @blur="removeActiveClass" v-model="todo.taskName" v-on:click="selectedTodoIndex = index" v-on:keyup.enter="updateTodo(index)" />
                   </div>
-                  <div>
-                    <button class="btn btn-danger" @click="deleteTodo(todo._id)">Delete</button>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <input type="date" class="form-control" :value="formatDateTime(todo.task_date)" v-on:change="updateTodo($event,index)" />
+                    <div class="trash-icon" @click="deleteTodo(todo._id)">
+                      <i style="cursor: pointer" class="ti ti-md ti-trash text-danger"></i>
+                      <span class="delete-text">Delete</span>
+                    </div>
                   </div>
                 </div>
               </li>
@@ -36,19 +41,29 @@
 </template>
 
 <script>
+import Snackbar from "awesome-snackbar";
 import { HTTP } from "../assets/js/baseAPI.js";
+
 export default {
   data() {
     return {
       newTodo: "",
       todos: [],
       selectedTodoIndex: -1,
+      selectedDate: null,
+      newDate: null,
     };
   },
   mounted() {
     this.getListTask();
   },
   methods: {
+    formatDateTime(date) {
+      return this.$moment(date).format("YYYY-MM-DD");
+    },
+    removeActiveClass() {
+      this.selectedTodoIndex = -1;
+    },
     getListTask() {
       HTTP.get(`task`)
         .then((response) => {
@@ -60,19 +75,46 @@ export default {
     },
     addTask() {
       if (this.newTodo != "") {
+        if (this.selectedDate == null) {
+          this.selectedDate = new Date();
+        }
         HTTP.post(`addTask`, {
-          id: 2,
           name: this.newTodo,
+          task_date: this.selectedDate,
         })
           .then(() => {
-            // Thêm mới thành công, load lại danh sách
+            new Snackbar(`Add successfully`, {
+              position: "bottom-right",
+              theme: "light",
+              style: {
+                container: [
+                  ["background-color", "#70a9a1"],
+                  ["border-radius", "5px"],
+                ],
+                message: [["color", "#fff"]],
+              },
+            });
             this.getListTask();
             this.newTodo = "";
           })
           .catch((e) => {
             console.log(e);
+            this.snackbarErorr();
           });
       }
+    },
+    snackbarErorr() {
+      new Snackbar(`Error`, {
+        position: "bottom-right",
+        theme: "light",
+        style: {
+          container: [
+            ["background-color", "red"],
+            ["border-radius", "5px"],
+          ],
+          message: [["color", "#fff"]],
+        },
+      });
     },
     deleteTodo(id) {
       HTTP.post(`deleteTask`, {
@@ -80,35 +122,94 @@ export default {
       })
         .then(() => {
           this.getListTask();
+          new Snackbar(`Deltete successfully`, {
+            position: "bottom-right",
+            theme: "light",
+            style: {
+              container: [
+                ["background-color", "red"],
+                ["border-radius", "5px"],
+              ],
+              message: [["color", "#fff"]],
+            },
+          });
         })
         .catch((e) => {
           console.log(e);
+          this.snackbarErorr();
         });
     },
-    updateTodo(index) {
-      HTTP.post(`updateTask`, {
-        _id: this.todos[index]._id,
-        id: this.todos[index].taskId,
-        name: this.todos[index].taskName,
-        completed: true,
-        task_date: this.todos[index].task_date,
-      })
-        .then(() => {
-          // Thêm mới thành công, load lại danh sách
-          this.getListTask();
-          this.newTodo = "";
-          this.index1 = -1;
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+    updateTodo(event, index) {
+      console.log(this.todos[index].completed);
+      this.newDate = event.target.value;
+      // this.newDate = event.target.value;
+      // if (this.newDate != null) {
+      //   this.todos[index].task_date = this.newDate;
+      // }
+      // HTTP.post(`updateTask`, {
+      //   _id: this.todos[index]._id,
+      //   id: this.todos[index].taskId,
+      //   name: this.todos[index].taskName,
+      //   completed: this.todos[index].completed,
+      //   task_date: this.todos[index].task_date,
+      // })
+      //   .then(() => {
+      //     this.selectedTodoIndex = -1;
+      //     new Snackbar(`Update successfully`, {
+      //       position: "bottom-right",
+      //       theme: "light",
+      //       style: {
+      //         container: [
+      //           ["background-color", "#1abc9c"],
+      //           ["border-radius", "5px"],
+      //         ],
+      //         message: [["color", "#fff"]],
+      //       },
+      //     });
+      //     this.getListTask();
+      //     this.newTodo = "";
+      //     this.selectedTodoIndex = -1;
+      //   })
+      //   .catch((e) => {
+      //     console.log(e);
+      //     this.snackbarErorr();
+      //   });
     },
   },
 };
 </script>
 
-<style scoped>
-.hoverr {
+<style>
+input[type="date"]:focus {
+  outline: none;
+  box-shadow: none;
+  outline-style: none;
+}
+
+.trash-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.delete-text {
+  position: absolute;
+  top: -20px; /* Điều chỉnh vị trí theo nhu cầu */
+  left: 50%; /* Điều chỉnh vị trí theo nhu cầu */
+  transform: translateX(-50%);
+  font-size: 12px; /* Điều chỉnh kích thước theo nhu cầu */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.trash-icon:hover .delete-text {
+  opacity: 1;
+}
+
+.inactive {
+  border: 1px solid white !important;
+  cursor: pointer;
+}
+.active {
   border: 1px solid #d8d6de !important;
 }
 /* .hoverr:hover {

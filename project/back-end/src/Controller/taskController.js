@@ -14,13 +14,13 @@ var getTask = (req, res) => {
 }
 
 var addTask = (req, res) => {
-    let id = req.body.data;
     const name = req.body.name;
+    const task_date = req.body.task_date
 
     const newTask = new task({
-        taskId: id,
-        active: true,
-        taskName: name
+        taskName: name,
+        completed: false,
+        task_date: task_date
     });
 
     newTask.save()
@@ -39,21 +39,20 @@ var deleteTask = async (req, res) => {
     }
 };
 
-var updateTask = async (req, res) => {   
-    console.log(_id)
+var updateTask = async (req, res) => {
+    const _id = req.body._id
     try {
         const taskData = {
-            taskId: req.body.id,
             taskName: req.body.name,
             completed: req.body.completed,
             task_date: req.body.task_date
         };
         const objectId = new ObjectId(_id);
-        
+
         await task.updateOne(
             { _id: objectId },
             { $set: taskData }
-        );    
+        );
         res.send("Update successfully");
     } catch (error) {
         console.log(error);
