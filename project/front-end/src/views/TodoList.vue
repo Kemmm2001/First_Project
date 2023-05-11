@@ -4,6 +4,18 @@
       <div class="card-header">
         <h4 class="card-title">Todo List</h4>
       </div>
+      <div>
+        <div class="totals _wrap text-left">
+          <p class="totals _grand-total">
+            <span class="totals _total-number">{{todos.length}}</span>
+            <span class="totals _total-text">Task</span>
+          </p>
+          <div class="totals _detail">
+            <p class="text-dark">{{ todos.filter((todo) => !todo.completed).length }} Active</p>
+            <p class="text-dark">{{ todos.filter((todo) => todo.completed).length }} completed</p>                     
+          </div>
+        </div>
+      </div>
       <div class="card-content">
         <div class="card-body">
           <form @submit.prevent="addTask">
@@ -203,8 +215,8 @@ export default {
       if (role == "task") {
         this.updateStatusTask(index);
       }
-      if(role == "date"){
-        this.updateDateTask(event,index)
+      if (role == "date") {
+        this.updateDateTask(event, index);
       }
     },
   },
@@ -212,6 +224,39 @@ export default {
 </script>
 
 <style>
+span.totals._total-number {
+  display: block;
+  font-size: 1.75rem;
+}
+
+.totals._wrap.text-left {
+  display: flex;
+  align-items: center !important
+}
+p.totals._grand-total {
+  text-align: center;
+  height: 71px;
+  width: 72px;
+  border-radius: 4px;
+  padding: 6px 12px;
+  background: #64b5f6;
+  color: #fff;
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.text-left {
+  text-align: left;
+  margin-left: 50px;
+}
+
+.task-counter {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
 input[type="date"]:focus {
   outline: none;
   box-shadow: none;
