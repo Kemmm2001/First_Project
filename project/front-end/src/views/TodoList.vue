@@ -16,15 +16,15 @@
             </div>
           </form>
           <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 10px" v-for="(todo, index) in todos" :key="index">
-            <input style="margin-top: 0" type="checkbox" class="form-check-input" v-model="todo.completed" v-on:change="updateTodo($event,index)" />
+            <input style="margin-top: 0" type="checkbox" class="form-check-input" v-model="todo.completed" v-on:change="updateTodo($event,index,'task')" />
             <ul class="list-group" style="width:100%">
               <li class="list-group-item">
                 <div :class="{done: todo.completed}" class="d-flex justify-content-between align-items-center">
                   <div>
-                    <input type="text" :class="{ 'active': index === selectedTodoIndex }" class="form-control inactive" placeholder="Enter text here" @blur="removeActiveClass" v-model="todo.taskName" v-on:click="selectedTodoIndex = index" v-on:keyup.enter="updateTodo(index)" />
+                    <input type="text" :class="{ 'active': index === selectedTodoIndex }" class="form-control inactive" placeholder="Enter text here" @blur="removeActiveClass" v-model="todo.taskName" v-on:click="selectedTodoIndex = index" v-on:keyup.enter="updateTodo($event,index,'task')" />
                   </div>
                   <div class="d-flex justify-content-between align-items-center">
-                    <input type="date" class="form-control" :value="formatDateTime(todo.task_date)" v-on:change="updateTodo($event,index)" />
+                    <input type="date" class="form-control" :value="formatDateTime(todo.task_date)" v-on:change="updateTodo($event,index,'date')" />
                     <div class="trash-icon" @click="deleteTodo(todo._id)">
                       <i style="cursor: pointer" class="ti ti-md ti-trash text-danger"></i>
                       <span class="delete-text">Delete</span>
@@ -139,41 +139,73 @@ export default {
           this.snackbarErorr();
         });
     },
-    updateTodo(event, index) {
-      console.log(this.todos[index].completed);
-      this.newDate = event.target.value;
-      // this.newDate = event.target.value;
-      // if (this.newDate != null) {
-      //   this.todos[index].task_date = this.newDate;
-      // }
-      // HTTP.post(`updateTask`, {
-      //   _id: this.todos[index]._id,
-      //   id: this.todos[index].taskId,
-      //   name: this.todos[index].taskName,
-      //   completed: this.todos[index].completed,
-      //   task_date: this.todos[index].task_date,
-      // })
-      //   .then(() => {
-      //     this.selectedTodoIndex = -1;
-      //     new Snackbar(`Update successfully`, {
-      //       position: "bottom-right",
-      //       theme: "light",
-      //       style: {
-      //         container: [
-      //           ["background-color", "#1abc9c"],
-      //           ["border-radius", "5px"],
-      //         ],
-      //         message: [["color", "#fff"]],
-      //       },
-      //     });
-      //     this.getListTask();
-      //     this.newTodo = "";
-      //     this.selectedTodoIndex = -1;
-      //   })
-      //   .catch((e) => {
-      //     console.log(e);
-      //     this.snackbarErorr();
-      //   });
+    updateStatusTask(index) {
+      HTTP.post(`updateTask`, {
+        _id: this.todos[index]._id,
+        id: this.todos[index].taskId,
+        name: this.todos[index].taskName,
+        completed: this.todos[index].completed,
+        task_date: this.todos[index].task_date,
+      })
+        .then(() => {
+          this.selectedTodoIndex = -1;
+          new Snackbar(`Update successfully`, {
+            position: "bottom-right",
+            theme: "light",
+            style: {
+              container: [
+                ["background-color", "#1abc9c"],
+                ["border-radius", "5px"],
+              ],
+              message: [["color", "#fff"]],
+            },
+          });
+          this.getListTask();
+          this.newTodo = "";
+          this.selectedTodoIndex = -1;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.snackbarErorr();
+        });
+    },
+    updateDateTask(event, index) {
+      HTTP.post(`updateTask`, {
+        _id: this.todos[index]._id,
+        id: this.todos[index].taskId,
+        name: this.todos[index].taskName,
+        completed: this.todos[index].completed,
+        task_date: event.target.value,
+      })
+        .then(() => {
+          this.selectedTodoIndex = -1;
+          new Snackbar(`Update successfully`, {
+            position: "bottom-right",
+            theme: "light",
+            style: {
+              container: [
+                ["background-color", "#1abc9c"],
+                ["border-radius", "5px"],
+              ],
+              message: [["color", "#fff"]],
+            },
+          });
+          this.getListTask();
+          this.newTodo = "";
+          this.selectedTodoIndex = -1;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.snackbarErorr();
+        });
+    },
+    updateTodo(event, index, role) {
+      if (role == "task") {
+        this.updateStatusTask(index);
+      }
+      if(role == "date"){
+        this.updateDateTask(event,index)
+      }
     },
   },
 };
