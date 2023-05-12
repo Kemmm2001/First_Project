@@ -4,7 +4,7 @@
       <div class="card-header">
         <h4 class="card-title">Todo List</h4>
       </div>
-      <div>
+      <div style="display:flex">
         <div class="totals _wrap text-left">
           <p class="totals _grand-total">
             <span class="totals _total-number">{{todos.length}}</span>
@@ -15,12 +15,14 @@
             <p class="text-dark">{{ todos.filter((todo) => todo.completed).length }} completed</p>
           </div>
         </div>
+        <!-- <div class="text-right">
+          <label for="week-select">Select Week:</label>
+          <select id="week-select" class="form-control" v-model="selectedWeek">
+            <option v-for="(week, index) in weeks" :key="index" :value="week">{{ week }}</option>
+          </select>
+        </div> -->
       </div>
-      <div>
-        <select id="week-select" v-model="selectedWeek">
-          <option v-for="(week, index) in weeks" :key="index" :value="week">{{ week }}</option>
-        </select>
-      </div>
+
       <div class="card-content">
         <div class="card-body">
           <form @submit.prevent="addTask">
