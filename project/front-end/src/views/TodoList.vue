@@ -12,9 +12,14 @@
           </p>
           <div class="totals _detail">
             <p class="text-dark">{{ todos.filter((todo) => !todo.completed).length }} Active</p>
-            <p class="text-dark">{{ todos.filter((todo) => todo.completed).length }} completed</p>                     
+            <p class="text-dark">{{ todos.filter((todo) => todo.completed).length }} completed</p>
           </div>
         </div>
+      </div>
+      <div>
+        <select id="week-select" v-model="selectedWeek">
+          <option v-for="(week, index) in weeks" :key="index" :value="week">{{ week }}</option>
+        </select>
       </div>
       <div class="card-content">
         <div class="card-body">
@@ -64,12 +69,39 @@ export default {
       selectedTodoIndex: -1,
       selectedDate: null,
       newDate: null,
+      weeks: [],
+      selectedWeek: null,
     };
   },
   mounted() {
     this.getListTask();
+    this.getWeekFromYear();
   },
   methods: {
+    getWeekFromYear() {
+      const year = 2023; // Năm bạn muốn lấy tuần
+
+      // Lặp qua từng tuần trong năm
+      for (let week = 1; week <= 53; week++) {
+        const startOfWeek = this.$moment()
+          .year(year)
+          .isoWeek(week)
+          .startOf("isoWeek");
+        const endOfWeek = this.$moment()
+          .year(year)
+          .isoWeek(week)
+          .endOf("isoWeek");
+
+        // Thêm thông tin tuần vào danh sách
+        this.weeks.push({
+          weekNumber: week,
+          startOfWeek: startOfWeek.format("YYYY-MM-DD"),
+          endOfWeek: endOfWeek.format("YYYY-MM-DD"),
+        });
+      }
+
+      console.log(this.weeks);
+    },
     formatDateTime(date) {
       return this.$moment(date).format("YYYY-MM-DD");
     },
@@ -231,7 +263,7 @@ span.totals._total-number {
 
 .totals._wrap.text-left {
   display: flex;
-  align-items: center !important
+  align-items: center !important;
 }
 p.totals._grand-total {
   text-align: center;
