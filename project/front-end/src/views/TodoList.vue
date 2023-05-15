@@ -5,7 +5,7 @@
         <h4 class="card-title">Todo List</h4>
       </div>
       <div style="display:flex">
-        <div class="totals _wrap text-left">
+        <div class="totals _wrap text-left" style="width:75%">
           <p class="totals _grand-total">
             <span class="totals _total-number">{{todos.length}}</span>
             <span class="totals _total-text">Task</span>
@@ -15,12 +15,12 @@
             <p class="text-dark">{{ todos.filter((todo) => todo.completed).length }} completed</p>
           </div>
         </div>
-        <!-- <div class="text-right">
-          <label for="week-select">Select Week:</label>
-          <select id="week-select" class="form-control" v-model="selectedWeek">
-            <option v-for="(week, index) in weeks" :key="index" :value="week">{{ week }}</option>
+        <div class="text-right slectWeek">
+          <h4 style="margin-right:20px" for="week-select">Week:</h4>
+          <select id="week-select" class="form-control" v-model="selectedWeek" style="width: 235px;height: 50px">
+            <option v-for="(week, index) in weeks" :key="index" :value="week.weekNumber">{{ week.endOfWeek }} to {{week.startOfWeek}}</option>
           </select>
-        </div> -->
+        </div>
       </div>
 
       <div class="card-content">
@@ -78,6 +78,7 @@ export default {
   mounted() {
     this.getListTask();
     this.getWeekFromYear();
+    this.getCurrenWeek();
   },
   methods: {
     getWeekFromYear() {
@@ -100,9 +101,17 @@ export default {
           startOfWeek: startOfWeek.format("YYYY-MM-DD"),
           endOfWeek: endOfWeek.format("YYYY-MM-DD"),
         });
-      }
-
-      console.log(this.weeks);
+      }   
+    },
+    getCurrenWeek() {
+      const currtenDate = this.$moment();
+      const currentWeek = currtenDate.week();
+      const currentWeekObj = this.weeks.find(
+        (week) => week.weekNumber === currentWeek
+      );
+      this.selectedWeek = currentWeekObj.weekNumber;
+      // this.selectedWeek = currentWeekObj.endOfWeek + " to " + currentWeekObj.startOfWeek
+    
     },
     formatDateTime(date) {
       return this.$moment(date).format("YYYY-MM-DD");
@@ -258,6 +267,10 @@ export default {
 </script>
 
 <style>
+.slectWeek {
+  display: flex;
+  align-items: center !important;
+}
 span.totals._total-number {
   display: block;
   font-size: 1.75rem;
