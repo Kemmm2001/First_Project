@@ -6,4 +6,9 @@
 
 - add dashboard
 
+
 - Add a chart of completed tasks data
+
+
+
+finally: build from web to app

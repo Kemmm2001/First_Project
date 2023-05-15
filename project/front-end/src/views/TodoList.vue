@@ -17,7 +17,7 @@
         </div>
         <div class="text-right slectWeek">
           <h4 style="margin-right:20px" for="week-select">Week:</h4>
-          <select id="week-select" class="form-control" v-model="selectedWeek" style="width: 235px;height: 50px">
+          <select id="week-select" class="form-control" v-model="selectedWeek" v-on:change="changeSelectWeek($event.target.value)" style="width: 235px;height: 50px">
             <option v-for="(week, index) in weeks" :key="index" :value="week.weekNumber">{{ week.endOfWeek }} to {{week.startOfWeek}}</option>
           </select>
         </div>
@@ -73,12 +73,13 @@ export default {
       newDate: null,
       weeks: [],
       selectedWeek: null,
+      dataselectedWeek: null,
     };
   },
-  mounted() {
-    this.getListTask();
-    this.getWeekFromYear();
-    this.getCurrenWeek();
+  async mounted() {
+    await this.getWeekFromYear();
+    await this.getCurrenWeek();
+    await this.getListTask();
   },
   methods: {
     getWeekFromYear() {
@@ -101,8 +102,9 @@ export default {
           startOfWeek: startOfWeek.format("YYYY-MM-DD"),
           endOfWeek: endOfWeek.format("YYYY-MM-DD"),
         });
-      }   
+      }
     },
+    //Get data when start project
     getCurrenWeek() {
       const currtenDate = this.$moment();
       const currentWeek = currtenDate.week();
@@ -110,8 +112,15 @@ export default {
         (week) => week.weekNumber === currentWeek
       );
       this.selectedWeek = currentWeekObj.weekNumber;
-      // this.selectedWeek = currentWeekObj.endOfWeek + " to " + currentWeekObj.startOfWeek
-    
+      this.dataSelectedWeek = currentWeekObj;
+    },
+    //Get data when change week
+    getWeekSlectedChange(weekSelected) {
+      var currentWeekObj = this.weeks.find(
+        (week) => week.weekNumber == weekSelected
+      );    
+      this.selectedWeek = currentWeekObj.weekNumber;
+      this.dataSelectedWeek = currentWeekObj;
     },
     formatDateTime(date) {
       return this.$moment(date).format("YYYY-MM-DD");
@@ -120,9 +129,14 @@ export default {
       this.selectedTodoIndex = -1;
     },
     getListTask() {
+      var startWeek = this.dataSelectedWeek.startOfWeek;
+      var endWeek = this.dataSelectedWeek.endOfWeek;
       HTTP.get(`task`)
         .then((response) => {
           this.todos = response.data;
+          this.todos = this.todos.filter((task) => {
+            return task.task_date >= startWeek && task.task_date <= endWeek;
+          });
         })
         .catch((e) => {
           console.log(e);
@@ -253,6 +267,10 @@ export default {
           console.log(e);
           this.snackbarErorr();
         });
+    },
+    async changeSelectWeek(selectedWeek) {
+      await this.getWeekSlectedChange(selectedWeek);
+      await this.getListTask();
     },
     updateTodo(event, index, role) {
       if (role == "task") {
